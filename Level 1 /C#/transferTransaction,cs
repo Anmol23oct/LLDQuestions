@@ -1,0 +1,31 @@
+public class TransferTransaction : Transaction
+{
+    private readonly string _sourceId;
+    private readonly string _targetId;
+    private readonly int _amount;
+
+    public TransferTransaction(int timestamp, string sourceId, string targetId, int amount)
+        : base(timestamp)
+    {
+        _sourceId = sourceId;
+        _targetId = targetId;
+        _amount = amount;
+    }
+
+    public override int? Execute(Dictionary<string, Account> accounts)
+    {
+        if (_sourceId == _targetId)
+            return null;
+
+        if (!accounts.TryGetValue(_sourceId, out var source) ||
+            !accounts.TryGetValue(_targetId, out var target) ||
+            !source.CanWithdraw(_amount))
+        {
+            return null;
+        }
+
+        source.Withdraw(_amount);
+        target.Deposit(_amount);
+        return source.GetBalance();
+    }
+}
