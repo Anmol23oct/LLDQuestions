@@ -31,29 +31,15 @@ public class WorkerService
     public string TopNWorkers(int n, string position)
     {
         var workers = _repo.GetWorkersByPosition(position);
-        if (!workers.Any()) return "";
+        if (workers.Count == 0)
+            return "";
 
-        var minHeap = new SortedSet<(int totalMinutes, string workerId, Worker worker)>(
-            new WorkerEntryComparer()
-        );
+        var topN = workers
+            .OrderByDescending(w => w.TotalMinutes)
+            .ThenBy(w => w.WorkerId)
+            .Take(n)
+            .Select(w => $"{w.WorkerId}({w.TotalMinutes})");
 
-        foreach (var worker in workers)
-        {
-            var entry = (worker.TotalMinutes, worker.WorkerId, worker);
-            minHeap.Add(entry);
-
-            if (minHeap.Count > n)
-            {
-                // Remove the one with the smallest totalMinutes or largest workerId
-                minHeap.Remove(minHeap.Max);
-            }
-        }
-
-        var result = minHeap
-            .OrderByDescending(x => x.totalMinutes)
-            .ThenBy(x => x.workerId)
-            .Select(x => $"{x.workerId}({x.totalMinutes})");
-
-        return string.Join(", ", result);
+        return string.Join(", ", topN);
     }
 }
