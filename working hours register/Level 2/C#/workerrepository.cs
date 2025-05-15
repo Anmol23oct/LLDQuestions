@@ -4,7 +4,7 @@ using System.Linq;
 
 public class WorkerRepository
 {
-    private Dictionary<string, Worker> _workers = new();
+    private readonly Dictionary<string, Worker> _workers = new();
 
     public string AddWorker(string workerId, string position, int compensation)
     {
@@ -23,7 +23,7 @@ public class WorkerRepository
     public List<Worker> GetWorkersByPosition(string position)
     {
         return _workers.Values
-            .Where(worker => worker.Position == position)
+            .Where(w => w.Position == position)
             .ToList();
     }
 }
